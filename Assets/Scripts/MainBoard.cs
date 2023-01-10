@@ -17,6 +17,13 @@ public class MainBoard : MonoBehaviour
 
     [SerializeField]
     private Button GuessButton;
+    [SerializeField]
+    private GameObject[] GoodPlace;
+    [SerializeField]
+    private GameObject[] WrongPlace;
+    private int _Goods;
+    private int _Wrongs;
+
 
     private int[] Solution = new int[4];
     private IUsableObject Touched;
@@ -87,9 +94,11 @@ public class MainBoard : MonoBehaviour
             if (UserGuess[i] == Solution[i])
             {
                 Debug.Log("un bien placé");
+                _Goods++;
             }else if (Solution.Contains(UserGuess[i]))
             {
                 Debug.Log("un Mal placé");
+                _Wrongs++;
             }
         }
     }
@@ -99,6 +108,33 @@ public class MainBoard : MonoBehaviour
             if(Input.GetKeyDown(KeyCode.U))
         {
             Compare();
+
+            foreach (GameObject Go in GoodPlace)
+            {
+                Go.SetActive(false);
+            }
+            if (_Goods>0)
+            { 
+                for (int i = 0; i < _Goods; i++)
+                {
+                    GoodPlace[i].SetActive(true);
+                }
+            }
+           
+            foreach (GameObject Go in WrongPlace)
+            {
+                Go.SetActive(false);
+            }
+            if (_Wrongs > 0)
+            {
+                for (int i = 0; i < _Wrongs; i++)
+                {
+                    WrongPlace[i].SetActive(true);
+                }
+            }
         }
+            _Goods= 0;
+            _Wrongs= 0;
+
     }
 }

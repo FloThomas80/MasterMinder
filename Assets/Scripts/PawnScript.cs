@@ -36,7 +36,11 @@ public class PawnScript : MonoBehaviour,IUsableObject
             GetComponent<Renderer>().material = _Colors[indx];
         }
         else
+        { 
             indx = 0;
+            GetComponent<Renderer>().material = _Colors[indx];
+        }
+
         _MainBoard.SetUserGuess(IDPawn, indx);
     }
 
