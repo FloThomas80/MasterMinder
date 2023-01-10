@@ -21,9 +21,12 @@ public class MainBoard : MonoBehaviour
     private GameObject[] GoodPlace;
     [SerializeField]
     private GameObject[] WrongPlace;
+    [SerializeField]
+    private GameObject Row;
+
     private int _Goods;
     private int _Wrongs;
-
+    private Vector3 RowCurrentposition;
 
     private int[] Solution = new int[4];
     private IUsableObject Touched;
@@ -32,6 +35,7 @@ public class MainBoard : MonoBehaviour
     void Start()
     {
         ChooseAnswer();
+        RowCurrentposition = Row.transform.position;
     }
 
 
@@ -83,58 +87,81 @@ public class MainBoard : MonoBehaviour
     public void SetUserGuess(int Rank, int Color)
     {
         UserGuess[Rank] = Color;
-        Debug.Log("change to" + UserGuess[0] + UserGuess[1]+ UserGuess[2]+ UserGuess[3]);
     }
 
 
     private void Compare()
     {
+
+        List<int> TempSol = Solution.ToList();
+        List<int> TempGuess = UserGuess.ToList();
+
         for (int i = 0; i < UserGuess.Length; i++)
         {
             if (UserGuess[i] == Solution[i])
             {
-                Debug.Log("un bien placé");
+                TempSol.Remove(UserGuess[i]);
+                TempGuess.Remove(UserGuess[i]);
                 _Goods++;
-            }else if (Solution.Contains(UserGuess[i]))
+            }
+        }
+
+        for (int i = 0; i < TempGuess.Count; i++)
+        {
+            if (TempSol.Contains(TempGuess[i]))
             {
-                Debug.Log("un Mal placé");
+                TempSol.Remove(TempGuess[i]);
+                //TempGuess.Remove(TempSol[i]);
                 _Wrongs++;
             }
         }
+        
     }
 
-    private void Guess()
-    {
-            if(Input.GetKeyDown(KeyCode.U))
-        {
-            Compare();
 
-            foreach (GameObject Go in GoodPlace)
+    private void CheckGoodWrong()
+    {
+        foreach (GameObject Go in GoodPlace)
+        {
+            Go.SetActive(false);
+        }
+        if (_Goods > 0)
+        {
+            for (int i = 0; i < _Goods; i++)
             {
-                Go.SetActive(false);
-            }
-            if (_Goods>0)
-            { 
-                for (int i = 0; i < _Goods; i++)
-                {
-                    GoodPlace[i].SetActive(true);
-                }
-            }
-           
-            foreach (GameObject Go in WrongPlace)
-            {
-                Go.SetActive(false);
-            }
-            if (_Wrongs > 0)
-            {
-                for (int i = 0; i < _Wrongs; i++)
-                {
-                    WrongPlace[i].SetActive(true);
-                }
+                GoodPlace[i].SetActive(true);
             }
         }
+
+        foreach (GameObject Go in WrongPlace)
+        {
+            Go.SetActive(false);
+        }
+        if (_Wrongs > 0)
+        {
+            for (int i = 0; i < _Wrongs; i++)
+            {
+                WrongPlace[i].SetActive(true);
+            }
+        }
+    
             _Goods= 0;
             _Wrongs= 0;
+    }
 
+    private void CreateNewLine()
+    {
+        RowCurrentposition.y = RowCurrentposition.y - 1.335f;
+        Camera.main.transform.localPosition = new Vector3(Camera.main.transform.localPosition.x,RowCurrentposition.y, Camera.main.transform.localPosition.y);
+        Row = Instantiate(Row, RowCurrentposition, Quaternion.identity);
+    }
+    private void Guess()
+    {
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            Compare();
+            CheckGoodWrong();
+            CreateNewLine();
+        }
     }
 }

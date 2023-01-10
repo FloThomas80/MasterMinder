@@ -30,16 +30,11 @@ public class PawnScript : MonoBehaviour,IUsableObject
     public void UseObject()
     {
         
-        if (indx < 5)
-        {
+        if (indx < _Colors.Length)
             indx++;
-            GetComponent<Renderer>().material = _Colors[indx];
-        }
         else
-        { 
-            indx = 0;
-            GetComponent<Renderer>().material = _Colors[indx];
-        }
+            indx = 0; 
+        GetComponent<Renderer>().material = _Colors[indx];
 
         _MainBoard.SetUserGuess(IDPawn, indx);
     }
