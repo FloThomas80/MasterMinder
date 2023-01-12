@@ -34,10 +34,8 @@ public class MainBoard : MonoBehaviour
     private int _Wrongs;
 
     private int[] Solution = new int[4];
-
-
-
     public int[] UserGuess = new int[4];
+
     private int rowNbr = 0;
 
     int[] TempColors;
@@ -176,6 +174,11 @@ public class MainBoard : MonoBehaviour
                 SetUserGuess(Rows[rowNbr].GetComponent<RowScript>().GetRowColors());
                 Compare();
                 CheckGoodWrong();
+                if (_Goods == 4)
+                {
+                    _AppManager.GameWin();
+                }
+                else
                 NextLine();
             }
         }

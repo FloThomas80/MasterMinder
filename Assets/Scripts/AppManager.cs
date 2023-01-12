@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class AppManager : MonoBehaviour
 {
@@ -10,6 +11,9 @@ public class AppManager : MonoBehaviour
     private Material[] ResultColors = new Material[] {}; // where 1 is White 2 is Black
 
     private IUsableObject Touched;
+
+    public delegate void DelegateGameWin();  // delegate
+    public static event DelegateGameWin OnGameWin; // event
     private void Update()
     {
         UseTarget(FindObject());
@@ -42,5 +46,13 @@ public class AppManager : MonoBehaviour
         }
     }
 
+
+    public void GameWin()
+    { 
+        if(OnGameWin != null)
+            {
+                OnGameWin();
+            }
+    }
 
 }
