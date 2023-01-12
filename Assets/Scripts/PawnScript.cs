@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -5,40 +6,53 @@ using UnityEngine;
 
 public class PawnScript : MonoBehaviour,IUsableObject
 {
-    
-
     [SerializeField]
     private AppManager _AppManager;
 
-    [SerializeField]
-    private int IDPawn;
+    [SerializeField] private Material[] _Colors;
+    [SerializeField] private Renderer _renderer;
 
-    [SerializeField]
-    private MainBoard _MainBoard;
-    private Material[] _Colors;
-
-    int indx;
+    int indxColor;
     private void Start()
     {
-        indx = 0;
         _Colors = _AppManager.GetColors();
-        GetComponent<Renderer>().material = _Colors[indx];
     }
 
 
 
     public void UseObject()
     {
-        
-        if (indx < _Colors.Length)
-            indx++;
+        if (indxColor >= _Colors.Length-1)
+            indxColor = 0; 
         else
-            indx = 0; 
-        GetComponent<Renderer>().material = _Colors[indx];
-
-        _MainBoard.SetUserGuess(IDPawn, indx);
+            indxColor++;
+        _renderer.material = _Colors[indxColor];
     }
 
+    public void ChangeColorto(int ColorChoice)
+    {
+        _renderer.material = _Colors[ColorChoice];
+    }
+
+    public int GetColorIndex()
+    { 
+        for (int i = 0; i < _Colors.Length; i++)
+        {
+            if (_Colors[i].color == _renderer.material.color)
+            {
+                indxColor = i;
+            }
+        }
+        return indxColor;
+    }
+    private void ActivatePawn()
+    {
+        GetComponent<Collider>().enabled= true;
+    }
+    public void DeActivatePawn()
+    {
+        GetComponent<Collider>().enabled = false;
+    }
 
 
 }

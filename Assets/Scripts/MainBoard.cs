@@ -13,62 +13,53 @@ public class MainBoard : MonoBehaviour
     private GameObject[] MasterMindAnswer;
 
     [SerializeField]
+    private GameObject[] GuessAnswer;
+
+    [SerializeField]
     private AppManager _AppManager;
+    [SerializeField]
+    private GameObject PawnScript;
+    [SerializeField]
+    private GameObject RowScript;
 
     [SerializeField]
     private Button GuessButton;
+
+
+
     [SerializeField]
-    private GameObject[] GoodPlace;
-    [SerializeField]
-    private GameObject[] WrongPlace;
-    [SerializeField]
-    private GameObject Row;
+    private GameObject[] Rows;
 
     private int _Goods;
     private int _Wrongs;
-    private Vector3 RowCurrentposition;
 
     private int[] Solution = new int[4];
-    private IUsableObject Touched;
-    private int[] UserGuess= new int[4];
+
+
+
+    public int[] UserGuess = new int[4];
+    private int rowNbr = 0;
+
+    int[] TempColors;
     // Start is called before the first frame update
     void Start()
     {
         ChooseAnswer();
-        RowCurrentposition = Row.transform.position;
+        Raz();
     }
 
 
     private void Update()
     {
-        FindObject();
-        UseTarget(FindObject());
+        //FindObject();
+ 
         //GuessButton.clicked.Invoke();
         Guess();
     }
 
-    public IUsableObject FindObject()
-    {
-        RaycastHit hit;
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out hit))
-        {
-            if (hit.collider != null)
-            {
-                Touched = hit.collider.GetComponent<IUsableObject>();
-                return Touched;
-            }
-        }
-        return null;
-    }
+    
 
-    private void UseTarget(IUsableObject usableObject)
-    {
-        if (Input.GetMouseButtonDown(0) && Touched != null)
-        {
-            usableObject.UseObject();
-        }
-    }
+
 
     private void ChooseAnswer()
     {
@@ -84,15 +75,14 @@ public class MainBoard : MonoBehaviour
     }
 
 
-    public void SetUserGuess(int Rank, int Color)
+    public void SetUserGuess(int[] Color)
     {
-        UserGuess[Rank] = Color;
+        UserGuess = Color;
     }
 
 
     private void Compare()
     {
-
         List<int> TempSol = Solution.ToList();
         List<int> TempGuess = UserGuess.ToList();
 
@@ -111,57 +101,83 @@ public class MainBoard : MonoBehaviour
             if (TempSol.Contains(TempGuess[i]))
             {
                 TempSol.Remove(TempGuess[i]);
-                //TempGuess.Remove(TempSol[i]);
                 _Wrongs++;
             }
         }
+    }
+
+    private void Raz()
+    {
+        _Goods = 0;
+        _Wrongs = 0;
+        for (int i = 0; i < Rows[rowNbr].GetComponent<RowScript>().GoodPlace.Length; i++)
+        {
+            Rows[rowNbr].GetComponent<RowScript>().GoodPlace[i].SetActive(false);
+            Rows[rowNbr].GetComponent<RowScript>().WrongPlace[i].SetActive(false);
+        }
         
     }
-
-
     private void CheckGoodWrong()
     {
-        foreach (GameObject Go in GoodPlace)
+        foreach (GameObject Go in Rows[rowNbr].GetComponent<RowScript>().GoodPlace)
         {
-            Go.SetActive(false);
-        }
-        if (_Goods > 0)
-        {
-            for (int i = 0; i < _Goods; i++)
+            //Go.SetActive(false);
+            //}
+            if (_Goods > 0)
             {
-                GoodPlace[i].SetActive(true);
+                for (int i = 0; i < _Goods; i++)
+                {
+                    Rows[rowNbr].GetComponent<RowScript>().GoodPlace[i].SetActive(true);
+                }
             }
         }
 
-        foreach (GameObject Go in WrongPlace)
+        foreach (GameObject Go in Rows[rowNbr].GetComponent<RowScript>().WrongPlace)
         {
-            Go.SetActive(false);
-        }
-        if (_Wrongs > 0)
-        {
-            for (int i = 0; i < _Wrongs; i++)
+            //Go.SetActive(false);
+            //}
+            if (_Wrongs > 0)
             {
-                WrongPlace[i].SetActive(true);
+                for (int i = 0; i < _Wrongs; i++)
+                {
+                    Rows[rowNbr].GetComponent<RowScript>().WrongPlace[i].SetActive(true);
+                }
             }
         }
-    
-            _Goods= 0;
-            _Wrongs= 0;
     }
 
-    private void CreateNewLine()
+    private void NextLine()
     {
-        RowCurrentposition.y = RowCurrentposition.y - 1.335f;
-        Camera.main.transform.localPosition = new Vector3(Camera.main.transform.localPosition.x,RowCurrentposition.y, Camera.main.transform.localPosition.y);
-        Row = Instantiate(Row, RowCurrentposition, Quaternion.identity);
+            Rows[rowNbr].GetComponent<RowScript>().DeActivateLine();
+
+            rowNbr++;
+            Rows[rowNbr].SetActive(true);
+            
+            StartCoroutine(WaitCoroutine());
+
+            float newCamPos = (Camera.main.transform.localPosition.y) - 1.35f;
+            Camera.main.transform.localPosition = new Vector3(Camera.main.transform.localPosition.x, newCamPos, Camera.main.transform.localPosition.z); 
+      }
+
+    IEnumerator WaitCoroutine()
+    {
+        yield return new WaitForSeconds(0.001f);
+        Raz();
+        Rows[rowNbr].GetComponent<RowScript>().SetRowColors(UserGuess);
+        
+
     }
     private void Guess()
     {
         if (Input.GetKeyDown(KeyCode.U))
         {
-            Compare();
-            CheckGoodWrong();
-            CreateNewLine();
+            if (rowNbr < 11)
+            {
+                SetUserGuess(Rows[rowNbr].GetComponent<RowScript>().GetRowColors());
+                Compare();
+                CheckGoodWrong();
+                NextLine();
+            }
         }
     }
 }
