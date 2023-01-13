@@ -12,8 +12,12 @@ public class AppManager : MonoBehaviour
 
     private IUsableObject Touched;
 
-    public delegate void DelegateGameWin();  // delegate
-    public static event DelegateGameWin OnGameWin; // event
+    public delegate void DelegateGameMessage();  // delegate
+
+    public static event DelegateGameMessage OnGameWin; // event
+    public static event DelegateGameMessage OnGameLoose; // event
+    public static event DelegateGameMessage OnGuessPress; // event
+
     private void Update()
     {
         UseTarget(FindObject());
@@ -38,21 +42,38 @@ public class AppManager : MonoBehaviour
     {
         return AnswerColors;
     }
+
     private void UseTarget(IUsableObject usableObject)
     {
         if (Input.GetMouseButtonDown(0) && Touched != null)
         {
             usableObject.UseObject();
+            
         }
     }
 
-
+    public void GameLoose()
+    {
+        if (OnGameLoose != null)
+        {
+            OnGameLoose.Invoke();
+        }
+    }
     public void GameWin()
     { 
         if(OnGameWin != null)
             {
-                OnGameWin();
+                OnGameWin.Invoke();
             }
+    }
+
+
+    public void GuessPress()
+    {
+        if (OnGuessPress != null)
+        {
+            OnGuessPress.Invoke();
+        }
     }
 
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,10 @@ using UnityEngine.UIElements;
 
 public class MainBoard : MonoBehaviour
 {
+
+    [SerializeField]
+    private Material[] FondCam;
+
     [SerializeField]
     private GameObject[] MasterMindAnswer;
 
@@ -42,6 +47,8 @@ public class MainBoard : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        AppManager.OnGuessPress += Guess;
+        RandomBackground();
         ChooseAnswer();
         Raz();
     }
@@ -50,12 +57,15 @@ public class MainBoard : MonoBehaviour
     private void Update()
     {
         //FindObject();
- 
-        //GuessButton.clicked.Invoke();
-        Guess();
+        //Guess();
     }
 
-    
+    private void RandomBackground()
+    {
+        int randy = UnityEngine.Random.Range(0, FondCam.Length);
+        RenderSettings.skybox = FondCam[randy];
+
+    }
 
 
 
@@ -65,7 +75,7 @@ public class MainBoard : MonoBehaviour
         {
             Material[] _Colors = _AppManager.GetColors();
 
-            int RndMColor = Random.Range(0, _Colors.Length);
+            int RndMColor = UnityEngine.Random.Range(0, _Colors.Length);
             MasterMindAnswer[i].GetComponent<Renderer>().material = _Colors[RndMColor];
             Solution[i] = RndMColor;
         }
@@ -165,10 +175,9 @@ public class MainBoard : MonoBehaviour
         
 
     }
-    private void Guess()
+    public void Guess()
     {
-        if (Input.GetKeyDown(KeyCode.U))
-        {
+
             if (rowNbr < 11)
             {
                 SetUserGuess(Rows[rowNbr].GetComponent<RowScript>().GetRowColors());
@@ -181,6 +190,8 @@ public class MainBoard : MonoBehaviour
                 else
                 NextLine();
             }
-        }
+            else
+            _AppManager.GameLoose();
+
     }
 }
